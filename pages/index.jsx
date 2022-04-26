@@ -273,8 +273,12 @@ export default function Home({ routes, startingPointsAndDestinations }) {
   );
 }
 
-Home.getLayout = function getLayout(page) {
-  return <MainLayout>{page}</MainLayout>;
+Home.getLayout = function getLayout(page, token, setToken) {
+  return (
+    <MainLayout token={token} setToken={setToken}>
+      {page}
+    </MainLayout>
+  );
 };
 
 export async function getServerSideProps() {
