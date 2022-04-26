@@ -361,7 +361,12 @@ export default function BuyTicket({
                           }
                         />
                       </Box>
-                      <Typography>Pickup at: </Typography>
+                      <Typography>
+                        Pickup at: {line?.route.pickupPoint}
+                      </Typography>
+                      <Typography>
+                        Dropoff at: {line?.route.dropoffPoint}
+                      </Typography>
                       {line._id === selectedLine?._id ? (
                         <>
                           <br />
