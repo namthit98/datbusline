@@ -137,7 +137,7 @@ export default function Home({ routes, startingPointsAndDestinations }) {
             <Typography variant="h6">More than 20M customers</Typography>
             <Typography>
               Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard.
+              industry. Lorem Ipsum has been the industry standard.
             </Typography>
           </Grid>
           <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
