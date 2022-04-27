@@ -125,6 +125,8 @@ const Login = ({ setToken }) => {
                 />
               )}
             />
+
+            <Button type="submit" hidden></Button>
           </Box>
         </DialogContent>
         <DialogActions>

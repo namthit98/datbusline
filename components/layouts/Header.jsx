@@ -103,7 +103,13 @@ const Header = ({ token, setToken }) => {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    <MenuItem key={'profile'} onClick={handleCloseUserMenu}>
+                    <MenuItem
+                      key={'profile'}
+                      onClick={() => {
+                        router.push('/profile');
+                        handleCloseUserMenu();
+                      }}
+                    >
                       <Typography textAlign="center">{'Profile'}</Typography>
                     </MenuItem>
                     {/* <MenuItem
@@ -120,6 +126,7 @@ const Header = ({ token, setToken }) => {
                         Cookies.remove('bus_management_client_token');
                         setToken('');
                         handleCloseUserMenu();
+                        router.push('/');
                       }}
                     >
                       <Typography textAlign="center">{'Logout'}</Typography>
