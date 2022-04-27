@@ -45,14 +45,22 @@ export default function BuyTicket({
 }) {
   const router = useRouter();
   const [numberOfTickets, setNumberOfTickets] = useState(0);
-  const [startingPoint, setStartingPoint] = useState('');
-  const [destination, setDestination] = useState('');
+  const [startingPoint, setStartingPoint] = useState(
+    router?.query?.startingPoint || ''
+  );
+  const [destination, setDestination] = useState(
+    router?.query?.destination || ''
+  );
   const [fullname, setFullname] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const [date, setDate] = useState(moment());
-  const [activeStep, setActiveStep] = useState(0);
+  const [date, setDate] = useState(
+    router?.query?.date ? moment(router.query.date) : moment()
+  );
+  const [activeStep, setActiveStep] = useState(
+    parseInt(router?.query?.step || 0)
+  );
   const [skipped, setSkipped] = useState(new Set([]));
   const [selectedLine, setSelectedLine] = useState(null);
   const [priceSorting, setPriceSorting] = useState('');
@@ -60,7 +68,7 @@ export default function BuyTicket({
   const [type, setType] = useState('');
   const { data, error } = useSWR(
     activeStep === 1 && startingPoint && destination && date
-      ? ['lines', priceSorting, type]
+      ? ['lines', priceSorting, type, startingPoint, destination, date]
       : null,
     () =>
       fetch(
@@ -69,6 +77,9 @@ export default function BuyTicket({
           `?${qs.stringify({
             price_sort: priceSorting,
             type,
+            startingPoint,
+            destination,
+            date,
           })}`
       ).then((res) => res.json())
   );
@@ -198,19 +209,10 @@ export default function BuyTicket({
   };
 
   useEffect(() => {
-    if (router.query.startingPoint) {
-      setStartingPoint(router.query.startingPoint);
-    }
-    if (router.query.destination) {
-      setDestination(router.query.destination);
-    }
-    if (router.query.date) {
-      setDate(moment(router.query.date));
-    }
-    if (router.query.step) {
-      setActiveStep(parseInt(router.query.step));
-    }
-  }, [router.query]);
+    const queries = qs.stringify({ startingPoint, destination, date });
+
+    router.push(`/buy-ticket?${queries}`);
+  }, [startingPoint, destination, date]);
 
   useEffect(() => {
     fetch(SERVER_URL + '/clients/coaches/types', {
