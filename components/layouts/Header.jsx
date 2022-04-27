@@ -112,14 +112,24 @@ const Header = ({ token, setToken }) => {
                     >
                       <Typography textAlign="center">{'Profile'}</Typography>
                     </MenuItem>
-                    {/* <MenuItem
-                      key={'change-password'}
-                      onClick={handleCloseUserMenu}
+                    <MenuItem
+                      key={'security'}
+                      onClick={() => {
+                        router.push('/change-password');
+                        handleCloseUserMenu();
+                      }}
                     >
-                      <Typography textAlign="center">
-                        {'Change Password'}
-                      </Typography>
-                    </MenuItem> */}
+                      <Typography textAlign="center">{'Security'}</Typography>
+                    </MenuItem>
+                    <MenuItem
+                      key={'tickets'}
+                      onClick={() => {
+                        router.push('/tickets');
+                        handleCloseUserMenu();
+                      }}
+                    >
+                      <Typography textAlign="center">{'Tickets'}</Typography>
+                    </MenuItem>
                     <MenuItem
                       key={'logout'}
                       onClick={() => {

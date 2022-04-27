@@ -6,6 +6,8 @@ import SidebarLayout from '../components/layouts/SidebarLayout';
 import { SERVER_URL } from '../const';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 const schema = yup.object({
   password: yup
@@ -22,6 +24,7 @@ const schema = yup.object({
 });
 
 const ChangePasswordPage = () => {
+  const router = useRouter();
   const {
     control,
     formState: { errors },
@@ -59,6 +62,13 @@ const ChangePasswordPage = () => {
         console.log(err);
       });
   };
+
+  useEffect(() => {
+    if (!Cookies.get('bus_management_client_token')) {
+      router.push('/');
+      return;
+    }
+  }, []);
 
   return (
     <Box

@@ -9,12 +9,14 @@ import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useRouter } from 'next/router';
 
 const schema = yup.object({
   fullname: yup.string().required('Fullname is required'),
 });
 
 const ProfilePage = () => {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const {
     control,
@@ -54,7 +56,10 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (!Cookies.get('bus_management_client_token')) return;
+    if (!Cookies.get('bus_management_client_token')) {
+      router.push('/');
+      return;
+    }
 
     fetch(SERVER_URL + '/clients/token/valid', {
       method: 'POST',
@@ -68,7 +73,8 @@ const ProfilePage = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data && data.error) {
-          // Cookies.remove('bus_management_client_token');
+          Cookies.remove('bus_management_client_token');
+          router.push('/');
           return;
         }
         setValue('fullname', data?.fullname);
@@ -78,7 +84,8 @@ const ProfilePage = () => {
       })
       .catch((err) => {
         console.log(err);
-        // Cookies.remove('bus_management_client_token');
+        Cookies.remove('bus_management_client_token');
+        router.push('/');
       });
   }, []);
 

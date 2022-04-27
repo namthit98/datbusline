@@ -27,6 +27,8 @@ import { useEffect } from 'react';
 import useSWR from 'swr';
 import CircleIcon from '@mui/icons-material/Circle';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+import { uniq } from 'lodash';
 
 const steps = [
   'Select Route',
@@ -48,13 +50,27 @@ export default function BuyTicket({
   const [fullname, setFullname] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [customerId, setCustomerId] = useState('');
   const [date, setDate] = useState(moment());
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set([]));
   const [selectedLine, setSelectedLine] = useState(null);
+  const [priceSorting, setPriceSorting] = useState('');
+  const [types, setTypes] = useState([]);
+  const [type, setType] = useState('');
   const { data, error } = useSWR(
-    activeStep === 1 && startingPoint && destination && date ? 'lines' : null,
-    () => fetch(SERVER_URL + '/clients/lines').then((res) => res.json())
+    activeStep === 1 && startingPoint && destination && date
+      ? ['lines', priceSorting, type]
+      : null,
+    () =>
+      fetch(
+        SERVER_URL +
+          '/clients/lines' +
+          `?${qs.stringify({
+            price_sort: priceSorting,
+            type,
+          })}`
+      ).then((res) => res.json())
   );
 
   const isStepSkipped = (step) => {
@@ -152,6 +168,7 @@ export default function BuyTicket({
         fullname,
         phone,
         email,
+        customer: customerId,
         numberOfTickets: parseInt(numberOfTickets),
         lineId: selectedLine._id,
       }),
@@ -172,6 +189,7 @@ export default function BuyTicket({
         setFullname('');
         setPhone('');
         setEmail('');
+        setCustomerId('');
       })
       .catch((err) => {
         toast.error('Create ticket failed!');
@@ -187,16 +205,91 @@ export default function BuyTicket({
       setDestination(router.query.destination);
     }
     if (router.query.date) {
-      setDate(router.query.date);
+      setDate(moment(router.query.date));
     }
     if (router.query.step) {
       setActiveStep(parseInt(router.query.step));
     }
   }, [router.query]);
 
+  useEffect(() => {
+    fetch(SERVER_URL + '/clients/coaches/types', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.error) {
+          return;
+        }
+
+        setTypes(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    if (!Cookies.get('bus_management_client_token')) return;
+
+    fetch(SERVER_URL + '/clients/token/valid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: Cookies.get('bus_management_client_token'),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.error) {
+          Cookies.remove('bus_management_client_token');
+          router.push('/');
+          return;
+        }
+
+        setCustomerId(data?._id || '');
+        setFullname(data?.fullname || '');
+        setPhone(data?.phone || '');
+        setEmail(data?.email || '');
+      })
+      .catch((err) => {
+        console.log(err);
+        Cookies.remove('bus_management_client_token');
+        router.push('/');
+      });
+  }, []);
+
+  // const types = data?.reduce((result, current) => {
+  //   return [...result, current?.coach?.type];
+  // }, []);
+
   return (
     <Container maxWidth="lg">
-      <Typography variant="h4">Select Lines</Typography>
+      {activeStep === 0 ? (
+        <Typography variant="h4">Select Lines</Typography>
+      ) : (
+        <>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h5">{startingPoint}</Typography>
+            &nbsp;&nbsp;&nbsp;
+            <ArrowRightAltIcon />
+            &nbsp;&nbsp;&nbsp;
+            <Typography variant="h5">{destination}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography>
+              {selectedLine
+                ? moment(selectedLine?.startTime).format('HH:mm')
+                : ''}
+            </Typography>
+            &nbsp;&nbsp;&nbsp;
+            <Typography>{date?.format('DD/MM/YYYY')}</Typography>
+          </Box>
+        </>
+      )}
       <br />
       <br />
       <Box sx={{ width: '100%' }}>
@@ -217,6 +310,49 @@ export default function BuyTicket({
         </Stepper>
 
         <br />
+        {activeStep === 1 ? (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={2}>
+              <TextField
+                size="small"
+                select
+                fullWidth
+                label="Price"
+                value={priceSorting}
+                onChange={(e) => setPriceSorting(e.target.value)}
+              >
+                <MenuItem value={''}>Price</MenuItem>
+                <MenuItem value={'asc'}>ASC</MenuItem>
+                <MenuItem value={'desc'}>DESC</MenuItem>
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <TextField
+                size="small"
+                select
+                fullWidth
+                label="Type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <MenuItem value={''}>Type</MenuItem>
+                {uniq(types).map((x, index) => {
+                  return (
+                    <MenuItem key={index} value={x}>
+                      {x}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+            {/* <Grid item xs={12} md={2}>
+              <TextField size="small" select required fullWidth label="Route">
+                <MenuItem value={''}>all</MenuItem>
+              </TextField>
+            </Grid> */}
+          </Grid>
+        ) : null}
         <br />
         <br />
 
