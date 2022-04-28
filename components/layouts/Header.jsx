@@ -15,9 +15,12 @@ import { useRouter } from 'next/router';
 import Register from './Register';
 import Login from './Login';
 import Cookies from 'js-cookie';
+import { useState } from 'react';
+import { SERVER_URL } from '../../const';
 
 const Header = ({ token, setToken }) => {
   const router = useRouter();
+  const [user, setUser] = useState();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -36,6 +39,32 @@ const Header = ({ token, setToken }) => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  React.useEffect(() => {
+    if (!Cookies.get('bus_management_client_token')) return;
+
+    fetch(SERVER_URL + '/clients/token/valid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: Cookies.get('bus_management_client_token'),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.error) {
+          Cookies.remove('bus_management_client_token');
+          return;
+        }
+        setUser(data);
+      })
+      .catch((err) => {
+        console.log(err);
+        Cookies.remove('bus_management_client_token');
+      });
+  }, []);
 
   return (
     <>
@@ -83,7 +112,12 @@ const Header = ({ token, setToken }) => {
               {token ? (
                 <>
                   <Tooltip title="Profile">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <IconButton
+                      onClick={handleOpenUserMenu}
+                      sx={{ p: 0, color: '#fff' }}
+                    >
+                      <Typography>{user?.fullname || 'John'}</Typography>
+                      &nbsp;&nbsp;
                       <Avatar alt="Remy Sharp" />
                     </IconButton>
                   </Tooltip>
@@ -136,7 +170,7 @@ const Header = ({ token, setToken }) => {
                         Cookies.remove('bus_management_client_token');
                         setToken('');
                         handleCloseUserMenu();
-                        router.push('/');
+                        window.location.reload();
                       }}
                     >
                       <Typography textAlign="center">{'Logout'}</Typography>

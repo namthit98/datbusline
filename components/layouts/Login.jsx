@@ -16,6 +16,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { DatePicker } from '@mui/x-date-pickers';
 import { SERVER_URL } from '../../const';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/router';
 
 const schema = yup.object({
   username: yup.string().required('Username is required'),
@@ -26,6 +27,7 @@ const schema = yup.object({
 });
 
 const Login = ({ setToken }) => {
+  const router = useRouter();
   const {
     control,
     formState: { errors },
@@ -69,6 +71,8 @@ const Login = ({ setToken }) => {
         setToken(data?.token);
         toast.success('Login successfully!');
         handleClose();
+
+        window.location.reload();
       })
       .catch((err) => {
         console.log(err);
