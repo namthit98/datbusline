@@ -56,7 +56,7 @@ export default function BuyTicket({
   const [email, setEmail] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [date, setDate] = useState(
-    router?.query?.date ? moment(router.query.date) : moment()
+    router?.query?.date ? moment(new Date(router.query.date)) : moment()
   );
   const [activeStep, setActiveStep] = useState(
     parseInt(router?.query?.step || 0)

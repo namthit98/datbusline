@@ -17,6 +17,8 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { SERVER_URL } from '../../const';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
+import { useRef } from 'react';
+import { useEffect } from 'react';
 
 const schema = yup.object({
   username: yup.string().required('Username is required'),
@@ -33,6 +35,7 @@ const Login = ({ setToken }) => {
     formState: { errors },
     handleSubmit,
     reset,
+    setFocus,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -40,7 +43,6 @@ const Login = ({ setToken }) => {
       password: '',
     },
   });
-
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -78,6 +80,14 @@ const Login = ({ setToken }) => {
         console.log(err);
       });
   };
+
+  useEffect(() => {
+    if (open && setFocus) {
+      setTimeout(() => {
+        setFocus('username');
+      }, 200);
+    }
+  }, [open, setFocus]);
 
   return (
     <>

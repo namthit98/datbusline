@@ -112,7 +112,7 @@ const TicketsPage = () => {
           const isOld = moment(ticket?.lineId?.startTime).isBefore(moment());
 
           return (
-            <Paper elevation={3} sx={{ m: 3, p: 3 }}>
+            <Paper key={ticket?._id} elevation={3} sx={{ m: 3, p: 3 }}>
               <Typography
                 variant="h6"
                 sx={{ display: 'flex', alignItems: 'center' }}

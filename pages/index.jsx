@@ -21,6 +21,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import { useRouter } from 'next/router';
+import qs from 'query-string';
 
 export default function Home({ routes, startingPointsAndDestinations }) {
   const router = useRouter();
@@ -30,10 +31,14 @@ export default function Home({ routes, startingPointsAndDestinations }) {
 
   const handleSearch = () => {
     if (startingPoint && destination && date) {
-      router.push(
-        '/buy-ticket' +
-          `?startingPoint=${startingPoint}&destination=${destination}&date=${date}&step=1`
-      );
+      const queries = qs.stringify({
+        startingPoint,
+        destination,
+        date: date.startOf('day'),
+        step: 1,
+      });
+
+      router.push(`/buy-ticket?${queries}`);
     }
   };
 
